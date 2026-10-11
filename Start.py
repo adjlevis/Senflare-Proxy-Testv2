@@ -37,7 +37,6 @@ for _stream in (sys.stdout, sys.stderr):
 DIRECT_SOURCES = {
     # 项目作者：Xiaobei09
     # 项目地址：https://github.com/Xiaobei09/proxyip
-    # 项目来源：Cmliu（zip.cm.edu.kg/all.txt）/ Wentao883（TG-wxgqlfx_ZBDW）/ ChatBotPlus（cf-proxyips）/ Ymyuuu（IPDB BestProxy）/ Mountain787（Lunch-Bag-ip）
     'Xiaobei': {
         'url': 'https://raw.githubusercontent.com/Xiaobei09/proxyip/refs/heads/main/data/valid/all.txt',
         'fallbackUrl': 'https://cdn.jsdelivr.net/gh/Xiaobei09/proxyip@main/data/valid/all.txt',
@@ -92,7 +91,6 @@ TEST_SOURCES = {
     },
     # 项目作者：NiREvil
     # 项目地址：https://github.com/NiREvil/vless
-    # 项目来源：社区扫描聚合快照（02_proxies.csv 全量包含于 03_proxies.txt）
     'NiREvil': {
         'url': 'https://raw.githubusercontent.com/NiREvil/vless/refs/heads/main/sub/country_proxies/03_proxies.txt',
         'fallbackUrl': 'https://cdn.jsdelivr.net/gh/NiREvil/vless@main/sub/country_proxies/03_proxies.txt',
@@ -139,8 +137,8 @@ REGION_TIMEOUT = 5         # 单次查询超时（秒）
 
 OUTPUT_FILE = os.path.join(_SCRIPT_DIR, 'Senflare-Proxy.txt')
 ALL_FILE = os.path.join(_SCRIPT_DIR, 'Senflare-Proxy-All.txt')  # 历史采集总库：所有从源采集过的节点,累积去重
-INVALID_FILE = os.path.join(_SCRIPT_DIR, 'Senflare-Proxy-Invalid.txt')  # 失败总表：累积所有判定无效的节点，只增（复活）不减（人工可删行）
-RESCUE_SAMPLE = 500      # 每轮从失败总表随机抽这么多复测，通过的救回主产物/分类，不过的继续留表
+INVALID_FILE = os.path.join(_SCRIPT_DIR, 'Senflare-Proxy-Invalid.txt')  # 失败总表：累积所有判定无效的节点
+RESCUE_SAMPLE = 500      # 每轮从失败总表随机抽这么多复测
 TEST_LIMIT = 0            # 试跑：每源只取前 N 个（0 = 全量）
 
 # ============================================================================
@@ -148,28 +146,27 @@ TEST_LIMIT = 0            # 试跑：每源只取前 N 个（0 = 全量）
 # ============================================================================
 CF_DNS_ENABLED = True                                    # 是否开启自动同步到 Cloudflare DNS
 CF_ZONE_ID = os.environ.get("CF_ZONE_ID", "你的_Zone_ID")  # Cloudflare Zone ID
-CF_API_TOKEN = os.environ.get("CF_API_TOKEN", "你的_API_Token")  # 具有 Zone.DNS (Edit) 权限的 API Token
-CF_DOMAIN_TEMPLATE = "proxyip.{region}.p30.kdns.fr"       # 子域名模板，{region} 会自动转为小写 (如 us, sg, jp)
+CF_API_TOKEN = os.environ.get("CF_API_TOKEN", "你的_API_Token")  # Cloudflare API Token
+CF_DOMAIN_TEMPLATE = "proxyip.{region}.p30.kdns.fr"       # 子域名模板 (已按要求调整为 proxyip.{region}.p30.kdns.fr)
 CF_PROXY_STATUS = False                                  # 优选 IP 解析是否开启 Cloudflare 代理小云朵
 MAX_RECORDS_PER_REGION = 5                               # 每个指定国家白名单最多同步多少个 IP
-MAX_RECORDS_FOR_ALL = 10                                 # all 聚合域名最多同步多少个 IP
+MAX_RECORDS_FOR_ALL = 20                                 # all 聚合域名最多同步多少个 IP
 
 # ===== 自建微信推送配置 =====
 WECHAT_API_URL = os.environ.get("WECHAT_API_URL", "https://wx.djcf.pp.ua/wxsend")
-WECHAT_AUTH_TOKEN = os.environ.get("WECHAT_AUTH_TOKEN", "123")
+WECHAT_AUTH_TOKEN = os.environ.get("WECHAT_AUTH_TOKEN", "sb123")
 WECHAT_BODY_TEMPLATE = os.environ.get("WECHAT_BODY_TEMPLATE", '{"title":"Proxyip 优选","content":"$MSG"}')
 
 # ===== Telegram 推送配置 =====
-TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "你的机器人Token")  # 优先从环境变量读取
-TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "你的聊天ID/频道ID")      # 优先从环境变量读取
-TG_API_URL = "https://api.telegram.org/bot"                      # TG API地址
+TG_BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "")  # 优先从环境变量读取
+TG_CHAT_ID = os.environ.get("TG_CHAT_ID", "")      # 优先从环境变量读取
+TG_API_URL = "https://api.telegram.org/bot"        # TG API地址
 
 
 # ============================================================================
 # 二、拉取与解析（格式解析函数在 SourceParse.py 模块）
 # ============================================================================
 
-# Cloudflare 官方网段
 CF_NETWORKS = [ipaddress.ip_network(n) for n in (
     '173.245.48.0/20', '103.21.244.0/22', '103.22.200.0/22', '103.31.4.0/22', '141.101.64.0/18', '108.162.192.0/18', '190.93.240.0/20', '188.114.96.0/20', 
     '197.234.240.0/22', '198.41.128.0/17', '162.158.0.0/15', '104.16.0.0/13', '104.24.0.0/14', '172.64.0.0/13', '131.0.72.0/22',
@@ -226,7 +223,6 @@ def load_nodes():
                 continue
 
             count = 0
-            # 格式解析走 SourceParse 模块
             parsed = parse_source(text, source)
             for node in parsed:
                 key = node.rpartition('#')[0]
@@ -372,11 +368,10 @@ def check_fallback(addr):
 
 
 # ============================================================================
-# 四、地区补全（缓存优先 → 接口查询，纯 IP 节点在这里统一格式）
+# 四、地区补全（缓存优先 → 接口查询）
 # ============================================================================
 
 def load_region_cache():
-    """读取本地地区缓存（ip → 国家代码）"""
     try:
         with open(REGION_CACHE_FILE, 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -390,7 +385,6 @@ def load_region_cache():
 
 
 def save_region_cache(cache):
-    """写回地区缓存，超出上限时淘汰最久未用的条目"""
     while len(cache) > REGION_CACHE_MAX:
         cache.popitem(last=False)
     with open(REGION_CACHE_FILE, 'w', encoding='utf-8') as f:
@@ -404,7 +398,6 @@ RATE_LIMITED = object()
 
 
 def query_ipinfo(ip):
-    """查询 ipinfo → 国家码"""
     url = REGION_API.format(ip=ip)
     for _ in range(2):
         try:
@@ -423,7 +416,6 @@ def query_ipinfo(ip):
 
 
 def ensure_regions(nodes):
-    """地区补全"""
     cache = load_region_cache()
     result = list(nodes)
     pending_idx = []
@@ -590,9 +582,12 @@ def send_wechat_notification(msg):
             delimiter = '&' if '?' in api_url else '?'
             api_url = f"{api_url}{delimiter}token={WECHAT_AUTH_TOKEN}"
 
+        # 转换为安全纯文本，彻底避开 WAF/Worker 对特殊符号的 403 拦截
+        clean_msg = msg.replace('*', '').replace('`', '')
+
         body_dict = {
             "title": "Proxyip 优选",
-            "content": msg
+            "content": clean_msg
         }
         data_bytes = json.dumps(body_dict, ensure_ascii=False).encode('utf-8')
         
@@ -611,8 +606,8 @@ def send_wechat_notification(msg):
 
 
 def send_telegram_notification(msg):
-    if not TG_BOT_TOKEN or TG_BOT_TOKEN == "你的机器人Token" or not TG_CHAT_ID or TG_CHAT_ID == "你的聊天ID/频道ID":
-        print("⏭️ Telegram 通知未配置或使用的是默认值，跳过发送。")
+    if not TG_BOT_TOKEN or not TG_CHAT_ID:
+        print("⏭️ Telegram 通知未配置完整，跳过发送。")
         return
     try:
         url = f"{TG_API_URL}{TG_BOT_TOKEN}/sendMessage"
@@ -640,7 +635,7 @@ def send_notifications(summary_text):
 # ============================================================================
 
 def load_dead_list(lines=None):
-    """读失败总表 → {addr: line}，全部跳过"""
+    """读失败总表 → {addr: line}"""
     if lines is None:
         lines = [l.strip() for l in open(INVALID_FILE, encoding='utf-8')] if os.path.exists(INVALID_FILE) else []
     latest = {}
@@ -748,19 +743,19 @@ def main():
 
     # 组装通知消息
     notif_msg = (
-        f"🌐 *vip Proxy IP 优选完成*\n\n"
-        f"📊 *统计数据*：\n"
-        f"• 免测直入：`{len(direct_nodes)}` 个\n"
-        f"• 待测可用：`{len(tested)}` 个\n"
-        f"• 最终合并：`{len(final_nodes)}` 个\n"
-        f"⏱️ *总耗时*：`{elapsed:.0f}` 秒\n"
+        f"🌐 S Proxy IP 优选完成\n\n"
+        f"📊 统计数据：\n"
+        f"• 免测直入：{len(direct_nodes)} 个\n"
+        f"• 待测可用：{len(tested)} 个\n"
+        f"• 最终合并：{len(final_nodes)} 个\n"
+        f"⏱️ 总耗时：{elapsed:.0f} 秒\n"
     )
     if sync_stats:
-        notif_msg += f"\n☁️ *DNS 子域名解析同步*：\n"
+        notif_msg += f"\n☁️ DNS 子域名解析同步：\n"
         for sub, count in sync_stats.items():
-            notif_msg += f"• `{sub}`: 写入 `{count}` 个IP\n"
+            notif_msg += f"• {sub}: 写入 {count} 个IP\n"
     else:
-        notif_msg += f"\n☁️ *DNS 同步*：未开启或未执行\n"
+        notif_msg += f"\n☁️ DNS 同步：未开启或未执行\n"
 
     # 发送双渠道通知
     send_notifications(notif_msg)
