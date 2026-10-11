@@ -34,26 +34,11 @@ jobs:
           WECHAT_AUTH_TOKEN: ${{ secrets.WECHAT_AUTH_TOKEN }}
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
-     
         run: python Start.py
 
-      - name: 💾 提交结果
-        run: |
-          # 分开 add：任一文件本次未生成不影响其他的暂存（提交在下一步统一做）
-          git add Senflare-Proxy.txt || true
-          git add Senflare-Proxy-All.txt || true
-          git add Senflare-Proxy-Bidirectional.txt Senflare-Proxy-Forward.txt Senflare-Proxy-Reverse.txt Senflare-Proxy-Invalid.txt || true
-
-      - name: 🗃️ 地区缓存
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Senflare-Country.json || true
-          if git diff --cached --quiet; then
-            echo "✅ 结果无变化，跳过提交"
-          else
-            git commit -m "🔄 数据更新 $(TZ=Asia/Shanghai date +%Y-%m-%d-%H:%M) [ Senflare Proxy]"
-            # 运行期间有人推了代码则 rebase 后再推，否则必被 fetch first 拒绝；冲突则直接失败，不覆盖远端
-            git pull --rebase origin main
-            git push
-          fi
+      - name: 💾 自动提交并推送结果文件与缓存
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🔄 数据更新 [ Senflare Proxy ]"
+          file_pattern: "Senflare-Proxy*.txt Senflare-Country.json"
+          skip_ci: true
