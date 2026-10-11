@@ -154,7 +154,7 @@ MAX_RECORDS_FOR_ALL = 20                                 # all 聚合域名最�
 
 # ===== 自建微信推送配置 =====
 WECHAT_API_URL = os.environ.get("WECHAT_API_URL", "https://wx.djcf.pp.ua/wxsend")
-WECHAT_AUTH_TOKEN = os.environ.get("WECHAT_AUTH_TOKEN", "sb123")
+WECHAT_AUTH_TOKEN = os.environ.get("WECHAT_AUTH_TOKEN", "123")
 WECHAT_BODY_TEMPLATE = os.environ.get("WECHAT_BODY_TEMPLATE", '{"title":"Proxyip 优选","content":"$MSG"}')
 
 # ===== Telegram 推送配置 =====
@@ -518,7 +518,7 @@ def sync_to_cloudflare_dns(final_nodes):
     sync_stats = {}
     for region, ips in region_ips.items():
         if region == 'all':
-            subdomain = "all.proxyip.p30.kdns.fr"
+            subdomain = "proxyip.all.p30.kdns.fr"
         else:
             subdomain = CF_DOMAIN_TEMPLATE.format(region=region)
             
@@ -743,7 +743,7 @@ def main():
 
     # 组装通知消息
     notif_msg = (
-        f"🌐 S Proxy IP 优选完成\n\n"
+        f"🌐 A-B Proxy IP 优选完成\n\n"
         f"📊 统计数据：\n"
         f"• 免测直入：{len(direct_nodes)} 个\n"
         f"• 待测可用：{len(tested)} 个\n"
