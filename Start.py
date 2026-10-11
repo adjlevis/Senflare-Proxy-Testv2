@@ -748,7 +748,7 @@ def main():
 
     # 组装通知消息
     notif_msg = (
-        f"🌐 *Proxy IP 优选完成*\n\n"
+        f"🌐 *vip Proxy IP 优选完成*\n\n"
         f"📊 *统计数据*：\n"
         f"• 免测直入：`{len(direct_nodes)}` 个\n"
         f"• 待测可用：`{len(tested)}` 个\n"
